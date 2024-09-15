@@ -103,7 +103,7 @@
         };
 
         function fetchData() {
-            fetch('http://localhost:3000/GetData')
+            fetch('https://test-data-nfkb.onrender.com/GetData')
                 .then(response => response.json())
                 .then(data => {
                     const dataContainer = document.getElementById('dataContainer');
@@ -130,7 +130,7 @@
         }
 
         function deleteData(id) {
-            fetch('http://localhost:3000/DeleteData', {
+            fetch('https://test-data-nfkb.onrender.com/DeleteData', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -156,7 +156,7 @@
 
             const newData = document.getElementById('newData').value;
 
-            fetch('http://localhost:3000/AddData', {
+            fetch('https://test-data-nfkb.onrender.com/AddData', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
