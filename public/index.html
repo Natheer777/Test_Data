@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        #dataContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        .data-item {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px;
+            width: 90%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .data-item button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .data-item button:hover {
+            background-color: #ff3333;
+        }
+        form {
+            display: flex;
+            justify-content: center;
+            margin: 20px;
+        }
+        form input {
+            padding: 10px;
+            margin-right: 10px;
+            width: 70%;
+            max-width: 400px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        form button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        form button:hover {
+            background-color: #45a049;
+        }
+        @media (max-width: 600px) {
+            .data-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .data-item button {
+                margin-top: 10px;
+                width: 100%;
+            }
+            form input, form button {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>بيانات API</h1>
+
+    <div id="dataContainer"></div>
+
+    <h2>إضافة بيانات جديدة</h2>
+    <form id="addDataForm">
+        <input type="text" id="newData" placeholder="أدخل البيانات" required>
+        <button type="submit">إضافة</button>
+    </form>
+
+    <script>
+        window.onload = function() {
+            fetchData();
+        };
+
+        function fetchData() {
+            fetch('http://localhost:3000/GetData')
+                .then(response => response.json())
+                .then(data => {
+                    const dataContainer = document.getElementById('dataContainer');
+                    dataContainer.innerHTML = ''; 
+                    data.forEach(item => {
+                   
+                        const div = document.createElement('div');
+                        div.className = 'data-item';
+                        div.textContent = item.Data; 
+
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'حذف';
+                        deleteButton.onclick = function() {
+                            deleteData(item.id); 
+                        };
+
+                        div.appendChild(deleteButton);
+                        dataContainer.appendChild(div);
+                    });
+                })
+                .catch(error => {
+                    console.error('خطأ في استدعاء البيانات:', error);
+                });
+        }
+
+        function deleteData(id) {
+            fetch('http://localhost:3000/DeleteData', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: id })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('تم حذف البيانات');
+                    fetchData(); 
+                } else {
+                    return response.text().then(text => { throw new Error(text); });
+                }
+            })
+            .catch(error => {
+                console.error('خطأ في حذف البيانات:', error);
+            });
+        }
+
+        const addDataForm = document.getElementById('addDataForm');
+        addDataForm.onsubmit = function(event) {
+            event.preventDefault(); 
+
+            const newData = document.getElementById('newData').value;
+
+            fetch('http://localhost:3000/AddData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ Data: newData })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('تم إضافة البيانات');
+                    fetchData(); 
+                    addDataForm.reset(); 
+                } else {
+                    return response.text().then(text => { throw new Error(text); });
+                }
+            })
+            .catch(error => {
+                console.error('خطأ في إضافة البيانات:', error);
+            });
+        };
+    </script>
+
+</body>
+</html>
